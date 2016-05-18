@@ -7,6 +7,8 @@ This role works for Cassandra 3.1 and greather. You can check the available vers
 
 *Note:* Recommended Java version is 8
 
+*Note2:* The role is an updated version of https://github.com/wunzeco/ansible-cassandra
+
 ## Examples
 
 ```
@@ -17,11 +19,11 @@ This role works for Cassandra 3.1 and greather. You can check the available vers
     cassandra_dsc_version: 3.5
     cassandra_cluster_name: myAwesomeCluster
     cassandra_seeds: [ "seedIp1", "seedIp2" ]  			# List of IP Addresses ONLY
-    cassandra_listen_address: "{{ ansible_eth0.ipv4.address }}"
+    cassandra_listen_address: "{{ ansible_eth0.ipv4.address }}"  
     cassandra_rpc_address: "{{ ansible_eth0.ipv4.address }}"
 
   roles:
-    - wunzeco.cassandra
+    - ivanst-stoyanov.cassandra
 ```
 > **INFO:** 
 >
