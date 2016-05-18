@@ -1,7 +1,9 @@
 Cassandra
 ========
 
-Ansible role to install and configure Cassandra (DataStax Community Edition).
+Ansible role to install and configure Cassandra (DataStax Distribution).
+
+This role works for Cassandra 3.1 and greather. You can check the available versions here http://debian.datastax.com/datastax-ddc/dists/
 
 *Note:* Recommended Java version is 8
 
@@ -11,8 +13,8 @@ Ansible role to install and configure Cassandra (DataStax Community Edition).
 - hosts: dbhost
 
   vars:
-    cassandra_version: 2.2.5
-    cassandra_dsc_version: 2.2.5-1
+    cassandra_version: 3.5
+    cassandra_dsc_version: 3.5
     cassandra_cluster_name: myAwesomeCluster
     cassandra_seeds: [ "seedIp1", "seedIp2" ]  			# List of IP Addresses ONLY
     cassandra_listen_address: "{{ ansible_eth0.ipv4.address }}"

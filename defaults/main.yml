@@ -14,11 +14,11 @@ cassandra_extra_classpath: []
 
 ############
 ##  Package
-cassandra_version: 2.2.5
+cassandra_version: 3.5
 cassandra_signing_key_url: "https://debian.datastax.com/debian/repo_key"
-cassandra_apt_repo: "deb http://debian.datastax.com/community stable main"
+cassandra_apt_repo: "deb http://debian.datastax.com/datastax-ddc {{ cassandra_version }} main"
 
-cassandra_dsc_version: 2.2.5-1
+cassandra_dsc_version: 3.5
 cassandra_dsc_pkg_suffix: "{{ cassandra_version.split('.')[0:2]|join('') }}"
 cassandra_tools_version: "{{ cassandra_version }}"
 cassandra_install_tools: false
@@ -82,7 +82,7 @@ cassandra_trickle_fsync: false
 cassandra_trickle_fsync_interval_in_kb: 10240
 cassandra_storage_port: 7000
 cassandra_ssl_storage_port: 7001
-cassandra_listen_address: "{{ ansible_default_ipv4.address }}"
+cassandra_listen_address: "{{ ansible_eth0.ipv4.address }}"
 cassandra_listen_interface:                     # e.g. eth0. Do not specify listen_address and listen_interface together
 cassandra_listen_interface_prefer_ipv6: false
 cassandra_broadcast_address:                    # leave blank to allow Cassandra use value of listen_address
@@ -95,7 +95,7 @@ cassandra_native_transport_max_frame_size_in_mb: 256
 cassandra_native_transport_max_concurrent_connections: "-1"         # -1 means unlimited
 cassandra_native_transport_max_concurrent_connections_per_ip: -1    # -1 means unlimited
 cassandra_start_rpc: false
-cassandra_rpc_address: "{{ ansible_default_ipv4.address }}"
+cassandra_rpc_address: "{{ ansible_eth0.ipv4.address }}"
 cassandra_rpc_interface:                        # e.g. eth0. Do not specify rpc_address and rpc_interface together
 cassandra_rpc_interface_prefer_ipv6: false
 cassandra_rpc_port: 9160
@@ -170,7 +170,7 @@ cassandra_internode_compression: all
 cassandra_inter_dc_tcp_nodelay: false
 cassandra_tracetype_query_ttl: 86400
 cassandra_tracetype_repair_ttl: 604800
-cassandra_gc_warn_threshold_in_ms:              # leave blank to allow Cassandra auto-set
+cassandra_gc_warn_threshold_in_ms: 1000             # leave blank to allow Cassandra auto-set
 cassandra_enable_user_defined_functions: false
 cassandra_windows_timer_interval: 1
 

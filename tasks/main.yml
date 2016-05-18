@@ -3,12 +3,11 @@
 - name: Download and install cassandra apt public signing key
   apt_key: url="{{ cassandra_signing_key_url }}" state=present
 
-
 - name: Add cassandra apt repository definition to apt sources list
   apt_repository: repo="{{ cassandra_apt_repo }}" update_cache=yes state=present
 
 - name: Install cassandra
-  apt: name="cassandra={{ cassandra_version }}" state=present
+  apt: name="datastax-ddc" state=present
   register: install
 
 - name: Check for pointers of first install - default cluster_name
@@ -28,9 +27,6 @@
     - data
     - commitlog
     - saved_caches
-
-- name: Install cassandra datastax community package
-  apt: name="dsc{{ cassandra_dsc_pkg_suffix }}={{ cassandra_dsc_version }}" state=present
 
 - include: fqdn.yml
   when: cassandra_seeds_fqdns
