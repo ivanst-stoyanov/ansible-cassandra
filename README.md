@@ -16,7 +16,6 @@ This role works for Cassandra 3.1 and greather. You can check the available vers
 
   vars:
     cassandra_version: 3.5
-    cassandra_dsc_version: 3.5
     cassandra_cluster_name: myAwesomeCluster
     cassandra_seeds: [ "seedIp1", "seedIp2" ]  			# List of IP Addresses ONLY
     cassandra_listen_address: "{{ ansible_eth0.ipv4.address }}"  

@@ -18,8 +18,6 @@ cassandra_version: 3.5
 cassandra_signing_key_url: "https://debian.datastax.com/debian/repo_key"
 cassandra_apt_repo: "deb http://debian.datastax.com/datastax-ddc {{ cassandra_version }} main"
 
-cassandra_dsc_version: 3.5
-cassandra_dsc_pkg_suffix: "{{ cassandra_version.split('.')[0:2]|join('') }}"
 cassandra_tools_version: "{{ cassandra_version }}"
 cassandra_install_tools: false
 
