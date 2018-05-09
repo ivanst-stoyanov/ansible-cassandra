@@ -6,11 +6,8 @@
 - name: Download and install cassandra apt public signing key
   apt_key: url="{{ cassandra_signing_key_url }}" state=present
 
-- name: Update the repositories
-  shell: apt-get update
-
 - name: Install cassandra
-  apt: name="cassandra" state=present
+  apt: name="cassandra" state=present update_cache=yes
   register: install
 
 - name: Check for pointers of first install - default cluster_name
