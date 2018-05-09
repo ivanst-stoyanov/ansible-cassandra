@@ -3,7 +3,7 @@ Cassandra
 
 Ansible role to install and configure Cassandra (DataStax Distribution).
 
-This role works for Cassandra 3.1 and greather. You can check the available versions here http://debian.datastax.com/datastax-ddc/dists/
+This role works for Cassandra 3.1 and greather. You can check the available versions here http://dl.bintray.com/apache/cassandra/dists/
 
 *Note:* Recommended Java version is 8
 
