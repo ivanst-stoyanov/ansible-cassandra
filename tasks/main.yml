@@ -1,10 +1,13 @@
 ---
 
+- name: Add cassandra apt repository definition to apt sources list
+  shell: echo "{{ cassandra_apt_repo }}" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
+
 - name: Download and install cassandra apt public signing key
   apt_key: url="{{ cassandra_signing_key_url }}" state=present
 
-- name: Add cassandra apt repository definition to apt sources list
-  apt_repository: repo="{{ cassandra_apt_repo }}" update_cache=yes state=present
+- name: Update the repositories
+  shell: apt-get update
 
 - name: Install cassandra
   apt: name="cassandra" state=present
