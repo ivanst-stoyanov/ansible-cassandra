@@ -7,7 +7,7 @@
   apt_repository: repo="{{ cassandra_apt_repo }}" update_cache=yes state=present
 
 - name: Install cassandra
-  apt: name="datastax-ddc" state=present
+  apt: name="cassandra" state=present
   register: install
 
 - name: Check for pointers of first install - default cluster_name

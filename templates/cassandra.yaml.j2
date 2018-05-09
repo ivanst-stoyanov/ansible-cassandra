@@ -203,6 +203,17 @@ data_file_directories:
 # If not set, the default directory is $CASSANDRA_HOME/data/commitlog.
 commitlog_directory: {{ cassandra_commitlog_dir }}
 
+# Enable / disable CDC functionality on a per-node basis. This modifies the logic used
+# for write path allocation rejection (standard: never reject. cdc: reject Mutation
+# containing a CDC-enabled table if at space limit in cdc_raw_directory).
+cdc_enabled: false
+
+# CommitLogSegments are moved to this directory on flush if cdc_enabled: true and the
+# segment contains mutations for a CDC-enabled table. This should be placed on a
+# separate spindle than the data directories. If not set, the default directory is
+# $CASSANDRA_HOME/data/cdc_raw.
+# cdc_raw_directory: /var/lib/cassandra/cdc_raw
+
 # policy for data disk failures:
 # die: shut down gossip and client transports and kill the JVM for any fs errors or
 #      single-sstable errors, so the node can be replaced.
@@ -238,6 +249,34 @@ commit_failure_policy: {{ cassandra_commit_failure_policy|default('stop') }}
 #
 # Default value is empty to make it "auto" (min(5% of Heap (in MB), 100MB)). Set to 0 to disable key cache.
 key_cache_size_in_mb: {{ cassandra_key_cache_size_in_mb }}
+
+# Maximum size of the native protocol prepared statement cache
+#
+# Valid values are either "auto" (omitting the value) or a value greater 0.
+#
+# Note that specifying a too large value will result in long running GCs and possbily
+# out-of-memory errors. Keep the value at a small fraction of the heap.
+#
+# If you constantly see "prepared statements discarded in the last minute because
+# cache limit reached" messages, the first step is to investigate the root cause
+# of these messages and check whether prepared statements are used correctly -
+# i.e. use bind markers for variable parts.
+#
+# Do only change the default value, if you really have more prepared statements than
+# fit in the cache. In most cases it is not neccessary to change this value.
+# Constantly re-preparing statements is a performance penalty.
+#
+# Default value ("auto") is 1/256th of the heap or 10MB, whichever is greater
+prepared_statements_cache_size_mb:
+
+# Maximum size of the Thrift prepared statement cache
+#
+# If you do not use Thrift at all, it is safe to leave this value at "auto".
+#
+# See description of 'prepared_statements_cache_size_mb' above for more information.
+#
+# Default value ("auto") is 1/256th of the heap or 10MB, whichever is greater
+thrift_prepared_statements_cache_size_mb:
 
 # Duration in seconds after which Cassandra should
 # save the key cache. Caches are saved to saved_caches_directory as
@@ -764,6 +803,14 @@ tombstone_failure_threshold: {{ cassandra_tombstone_failure_threshold|default(10
 #      you can cache more hot rows
 column_index_size_in_kb: {{ cassandra_column_index_size_in_kb|default(64) }}
 
+# Per sstable indexed key cache entries (the collation index in memory
+# mentioned above) exceeding this size will not be held on heap.
+# This means that only partition information is held on heap and the
+# index entries are read from disk.
+#
+# Note that this size refers to the size of the
+# serialized index information and not the size of the partition.
+column_index_cache_size_in_kb: 2
 
 # Log WARN on any batch size exceeding this value. 5kb per batch by default.
 # Caution should be taken on increasing the size of this threshold as it can lead to node instability.
@@ -840,6 +887,11 @@ cas_contention_timeout_in_ms: {{ cassandra_cas_contention_timeout_in_ms|default(
 truncate_request_timeout_in_ms: {{ cassandra_truncate_request_timeout_in_ms|default(60000) }}
 # The default timeout for other, miscellaneous operations
 request_timeout_in_ms: {{ cassandra_request_timeout_in_ms|default(10000) }}
+
+# How long before a node logs slow queries. Select queries that take longer than
+# this timeout to execute, will generate an aggregated log message, so that slow queries
+# can be identified. Set this value to zero to disable slow query logging.
+slow_query_log_timeout_in_ms: 500
 
 # Enable operation timeout information exchange between nodes to accurately
 # measure request timeouts.  If disabled, replicas will assume that requests
@@ -1014,7 +1066,8 @@ request_scheduler_options:
 #    # algorithm: SunX509
 #    # store_type: JKS
 #    # cipher_suites: [TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA]
-#     # require_client_auth: false
+#    # require_client_auth: false
+#    # require_endpoint_verification: false
 server_encryption_options:
 {% for key,opt in cassandra_server_encryption_options.iteritems() %}
 {% if opt is string or opt is number or opt is not iterable %}
@@ -1110,3 +1163,33 @@ transparent_data_encryption_options:
             keystore_password: cassandra
             store_type: JCEKS
             key_password: cassandra
+
+
+#####################
+# SAFETY THRESHOLDS #
+#####################
+
+# Log WARN on any batches not of type LOGGED than span across more partitions than this limit
+unlogged_batch_across_partitions_warn_threshold: 10
+
+# Back-pressure settings #
+# If enabled, the coordinator will apply the back-pressure strategy specified below to each mutation
+# sent to replicas, with the aim of reducing pressure on overloaded replicas.
+back_pressure_enabled: false
+# The back-pressure strategy applied.
+# The default implementation, RateBasedBackPressure, takes three arguments:
+# high ratio, factor, and flow type, and uses the ratio between incoming mutation responses and outgoing mutation requests.
+# If below high ratio, outgoing mutations are rate limited according to the incoming rate decreased by the given factor;
+# if above high ratio, the rate limiting is increased by the given factor;
+# such factor is usually best configured between 1 and 10, use larger values for a faster recovery
+# at the expense of potentially more dropped mutations;
+# the rate limiting is applied according to the flow type: if FAST, it's rate limited at the speed of the fastest replica,
+# if SLOW at the speed of the slowest one.
+# New strategies can be added. Implementors need to implement org.apache.cassandra.net.BackpressureStrategy and
+# provide a public constructor accepting a Map<String, Object>.
+back_pressure_strategy:
+    - class_name: org.apache.cassandra.net.RateBasedBackPressure
+      parameters:
+        - high_ratio: 0.90
+          factor: 5
+          flow: FAST
