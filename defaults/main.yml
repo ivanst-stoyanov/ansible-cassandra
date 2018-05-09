@@ -15,7 +15,7 @@ cassandra_extra_classpath: []
 ############
 ##  Package
 cassandra_version: 3.11x
-cassandra_signing_key_url: "https://www.apache.org/dist/cassandra/KEYS"
+cassandra_signing_key_url: "http://www.apache.org/dist/cassandra/KEYS"
 cassandra_apt_repo: "deb http://www.apache.org/dist/cassandra/debian {{ cassandra_version }} main"
 
 cassandra_tools_version: "{{ cassandra_version }}"
