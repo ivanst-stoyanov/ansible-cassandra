@@ -1,11 +1,5 @@
 ---
 
-- name: 'install python2'
-  raw: sudo apt-get -y install python-simplejson
-
-- name: 'install aptitude'
-  raw: sudo apt-get -y install aptitude
-
 - name: Add cassandra apt repository definition to apt sources list
   shell: echo "{{ cassandra_apt_repo }}" | sudo tee -a /etc/apt/sources.list.d/cassandra.sources.list
 
